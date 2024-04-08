@@ -1,3 +1,9 @@
+import WeatherInfoBar from "@/components/WeatherInfoBar/WeatherInfoBar";
+
 export default function Home() {
-  return <>페이지입니다.!</>;
+  return (
+    <main className="flex flex-col flex-grow w-full h-full p-4 homePage lg:p-20">
+      <WeatherInfoBar />
+    </main>
+  );
 }

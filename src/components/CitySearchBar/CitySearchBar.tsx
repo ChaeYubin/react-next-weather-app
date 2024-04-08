@@ -1,16 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import axios from "axios";
-import { WeatherDbData } from "@/models/weatherDbData";
+import React, { useEffect, useState } from "react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import CitySearchBarItem from "../CitySearchBarItem/CitySearchBarItem";
+import { WeatherDbData } from "@/models/weatherDbData";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const CitySearchBar = () => {
-  const [search, setSearch] = useState<string>("");
-  const debouncedSearch = useDebounce(search, 500);
-  const [isShowingSearchResults, setIsShowingSearchResults] =
-    useState<boolean>(false);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 1000);
+  const [isShowingSearchResults, setIsShowingSearchResults] = useState(false);
 
   const cities = useQuery({
     queryFn: async () => {
@@ -22,16 +21,14 @@ const CitySearchBar = () => {
         const fetchedCities = await axios.get<WeatherDbData[]>(
           `/api/cities/${debouncedSearch}`
         );
-
         if (fetchedCities.status !== 200) {
           console.error(fetchedCities);
           return [];
         }
-
         setIsShowingSearchResults(true);
         return fetchedCities.data;
-      } catch (e: unknown) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       }
     },
     queryKey: [debouncedSearch.toLowerCase()],

@@ -10,9 +10,9 @@ export async function GET(
     if (
       noRepeatCitiesNames.includes(city.name) ||
       !city.name.toLowerCase().includes(cityNamePart.toLowerCase())
-    )
+    ) {
       return false;
-
+    }
     noRepeatCitiesNames.push(city.name);
     return true;
   });
