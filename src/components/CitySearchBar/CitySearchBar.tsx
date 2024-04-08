@@ -2,21 +2,25 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { WeatherDbData } from "@/models/weatherDbData";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import CitySearchBarItem from "../CitySearchBarItem/CitySearchBarItem";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const CitySearchBar = () => {
   const [search, setSearch] = useState<string>("");
+  const debouncedSearch = useDebounce(search, 500);
   const [isShowingSearchResults, setIsShowingSearchResults] =
     useState<boolean>(false);
 
   const cities = useQuery({
     queryFn: async () => {
-      if (!search) {
+      if (!debouncedSearch) {
         setIsShowingSearchResults(false);
         return [];
       }
       try {
         const fetchedCities = await axios.get<WeatherDbData[]>(
-          `/api/cities/${search}`
+          `/api/cities/${debouncedSearch}`
         );
 
         if (fetchedCities.status !== 200) {
@@ -30,14 +34,14 @@ const CitySearchBar = () => {
         console.error(e);
       }
     },
-    queryKey: [search.toLowerCase()],
+    queryKey: [debouncedSearch.toLowerCase()],
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
     cities.refetch();
-  }, [search]);
+  }, [debouncedSearch]);
 
   return (
     <div className="searchBar">
@@ -53,9 +57,8 @@ const CitySearchBar = () => {
         />
         <div className="searchBar__loadingSpinner absolute right-0 top-0  w-[48px] h-[48px] grid content-center">
           {cities.isLoading || cities.isRefetching ? (
-            <div>로딩 스피너</div>
-          ) : // <LoadingSpinner width="w-[38px]" height="h-[38px]" />
-          null}
+            <LoadingSpinner width="w-[38px]" height="h-[38px]" />
+          ) : null}
         </div>
       </div>
 
@@ -64,7 +67,7 @@ const CitySearchBar = () => {
           className={`searchBar__results absolute z-[2] flex flex-col gap-2 border-2 
             border-gray-500 my-1 rounded-[10px] p-2 w-[300px] bg-white`}
         >
-          {/* {cities.data && cities.data.length !== 0 ? (
+          {cities.data && cities.data.length !== 0 ? (
             cities.data.slice(0, 6).map((city) => (
               <CitySearchBarItem
                 city={city}
@@ -83,7 +86,7 @@ const CitySearchBar = () => {
                 setSearch("");
               }}
             />
-          )} */}
+          )}
         </div>
       ) : null}
     </div>
